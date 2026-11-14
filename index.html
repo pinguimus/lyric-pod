@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="es"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Lyric Pod</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#14151a">
+<link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png">
+<style>
+:root{--ipod:#e6e7ea;--bg:#14151a;--ink:#3b3f45}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;display:grid;place-items:center;padding:16px;background:radial-gradient(circle at 50% 25%,color-mix(in srgb,var(--bg),#fff 12%),var(--bg) 72%);font:13px/1.3 "Helvetica Neue",Helvetica,Arial,sans-serif;color:#1c2a33;transition:background .3s}
+.ipod{width:340px;padding:22px 22px 32px;border-radius:38px;color:var(--ink);background:linear-gradient(150deg,color-mix(in srgb,var(--ipod),#fff 45%),var(--ipod) 50%,color-mix(in srgb,var(--ipod),#000 22%));box-shadow:0 30px 60px #0008,0 2px 0 #fff8 inset,0 -3px 8px #0003 inset}
+@media(max-height:760px){.ipod{zoom:.86}}
+@media(max-width:400px){.ipod{width:100%}}
+.bezel{background:#0b0b0d;padding:9px;border-radius:12px;box-shadow:0 2px 4px #0006 inset,0 1px 0 #fff6}
+.screen{height:300px;border-radius:5px;background:#e9f0f4;overflow:hidden;position:relative;display:flex;flex-direction:column}
+.hd{display:flex;align-items:center;height:28px;padding:0 6px;background:linear-gradient(#f8fafb,#c5cdd3);border-bottom:1px solid #8f9ba3;font-weight:700;font-size:13px}
+.hd b{flex:1;text-align:center;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.hd button{width:26px;height:22px;background:none;border:0;color:#2b3a44;padding:0;display:grid;place-items:center}
+.hd svg{width:14px;height:14px;fill:currentColor}
+#pi{opacity:0}#pi.on{opacity:1}
+.pg{flex:1;overflow-y:auto;position:relative;scrollbar-width:thin}
+.row{display:flex;align-items:center;gap:9px;padding:7px 10px;border-bottom:1px solid #cbd5db;cursor:pointer}
+.row:hover,.row.sel{background:linear-gradient(#4b93dc,#2462a8);color:#fff}
+.row:after{content:"›";opacity:.5;font-size:17px}.row.nc:after{content:none}
+.row .t{flex:1;min-width:0}.row .t b,.row .t small{display:block;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.row small{opacity:.7;font-size:11px}
+.cv{width:36px;height:36px;border-radius:3px;background:linear-gradient(135deg,#9fb2c0,#5f7686);color:#fff;display:grid;place-items:center;overflow:hidden;flex:none;font-style:normal}
+.cv img{width:100%;height:100%;object-fit:cover}
+.pad{padding:10px}.pad p{margin:8px 0}
+.fl{display:flex;gap:6px;flex-wrap:wrap}
+.btn{padding:6px 12px;border-radius:6px;border:1px solid #8f9ba3;background:linear-gradient(#fff,#d5dce1);color:#24323b;font-weight:600;font-size:12px;font-family:inherit;cursor:pointer;box-shadow:0 1px 0 #fff inset}
+.btn.pri{background:linear-gradient(#4b93dc,#2462a8);color:#fff;border-color:#1b4d86;box-shadow:0 1px 0 #8dc0f0 inset}
+.btn:active{transform:translateY(1px)}
+.in{width:100%;padding:7px 9px;border:1px solid #8f9ba3;border-radius:6px;background:#fff;font:inherit;margin-bottom:8px}
+.sws{display:flex;gap:7px;align-items:center;margin:7px 0 12px;flex-wrap:wrap}
+.sw{width:26px;height:26px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px #0004;padding:0;cursor:pointer}
+.sw.on{box-shadow:0 0 0 2px #2462a8}
+input[type=color]{width:30px;height:28px;padding:0;border:0;background:none}
+.np{position:absolute;inset:0;display:flex;flex-direction:column}
+.nh{display:flex;gap:9px;align-items:center;padding:6px 10px;border-bottom:1px solid #cbd5db}
+.nh .t{min-width:0}.nh b,.nh small{display:block;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.ly{flex:1;position:relative;overflow-y:auto;padding:80px 12px;text-align:center;scrollbar-width:none;mask-image:linear-gradient(transparent,#000 20%,#000 80%,transparent)}
+.ly::-webkit-scrollbar{display:none}
+.ly p{margin:0 0 12px;font-weight:700;font-size:15px;line-height:1.3;color:#93a1ab;cursor:pointer;transition:color .25s,font-size .25s}
+.ly p.on{font-size:19px;color:#6b7a85}
+.ly p span{transition:color .12s}
+.ly p.on span.w{color:#0d4f9e}
+.pl{font-size:13px;line-height:1.5;color:#44525c;padding:0 4px;text-align:center}
+.pb{display:flex;gap:7px;align-items:center;padding:4px 10px 7px;font-size:10px;font-variant-numeric:tabular-nums}
+.pb input{flex:1;accent-color:#2462a8}
+#toast{position:absolute;left:8px;right:8px;bottom:8px;padding:6px 9px;border-radius:6px;background:#1c2a33ee;color:#fff;font-size:12px;opacity:0;pointer-events:none;transition:opacity .25s}
+#toast.on{opacity:1}
+.wheel{position:relative;width:216px;height:216px;margin:28px auto 0;border-radius:50%;background:radial-gradient(circle at 50% 28%,color-mix(in srgb,var(--ipod),#fff 55%),color-mix(in srgb,var(--ipod),#000 8%));box-shadow:0 2px 0 #fff8 inset,0 6px 14px #0004}
+.wheel button{position:absolute;width:64px;height:48px;border:0;background:none;color:var(--ink);display:grid;place-items:center;font-weight:700;font-size:12px;letter-spacing:.08em;font-family:inherit;cursor:pointer;border-radius:12px}
+.wheel button:active{opacity:.55}
+.wheel svg{width:22px;height:22px;fill:currentColor}
+.wheel .m{top:10px;left:76px}.wheel .p{bottom:10px;left:76px}.wheel .l{left:6px;top:84px}.wheel .r{right:6px;top:84px}
+.wheel .c{left:69px;top:69px;width:78px;height:78px;border-radius:50%;background:radial-gradient(circle at 50% 25%,color-mix(in srgb,var(--ipod),#fff 30%),color-mix(in srgb,var(--ipod),#000 14%));box-shadow:0 1px 0 #fff8 inset,0 2px 5px #0005}
+button:focus-visible,input:focus-visible{outline:2px solid #2462a8;outline-offset:1px}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style></head>
+<body>
+<main class="ipod">
+ <div class="bezel"><div class="screen">
+  <div class="hd">
+   <button id="back" aria-label="Atrás"><svg viewBox="0 0 24 24"><path d="M14 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+   <b id="ttl">Lyric Pod</b>
+   <button id="pi" tabindex="-1" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 3l15 9-15 9z"/></svg></button>
+  </div>
+  <div class="pg" id="pg"></div><div id="toast"></div>
+ </div></div>
+ <div class="wheel">
+  <button class="m" aria-label="Menú (mantén para ir al inicio)">MENU</button>
+  <button class="l" aria-label="Anterior"><svg viewBox="0 0 24 24"><path d="M20 5l-9 7 9 7zM10 5l-9 7 9 7z"/></svg></button>
+  <button class="r" aria-label="Siguiente"><svg viewBox="0 0 24 24"><path d="M4 5l9 7-9 7zM14 5l9 7-9 7z"/></svg></button>
+  <button class="p" aria-label="Reproducir o pausar"><svg viewBox="0 0 24 24"><path d="M2 4l9 8-9 8zM14 4h3.5v16H14zM19.5 4H23v16h-3.5z"/></svg></button>
+  <button class="c" aria-label="Seleccionar"></button>
+ </div>
+</main>
+<input type="file" id="fm" multiple accept="audio/*,.lrc,.flac,.m4a,.opus" hidden>
+<input type="file" id="fi" webkitdirectory hidden>
+<script>
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const id=t=>t.id??t.uid, fmt=s=>isFinite(s)?Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0'):'0:00';
+const AUD=/\.(mp3|wav|flac|m4a|aac|ogg|oga|opus|wma|weba)$/i;
+let db,tracks=[],lists=[],st=[{n:'home'}],ctx=[],sel=-1,res=[],oq='',src='audius',cur=null,queue=[],url=null,
+    lines=[],plain='',lst='',li=-1,ip=null,tm,off=+(localStorage.lpoff||0);
+const T=JSON.parse(localStorage.getItem('lp-theme')||'{"ipod":"#e6e7ea","bg":"#14151a"}');
+const au=new Audio();au.preload='auto';
+
+/* ---------- Tema ---------- */
+const lum=h=>{const n=parseInt(h.slice(1),16);return(.299*(n>>16)+.587*(n>>8&255)+.114*(n&255))/255};
+function theme(){const r=document.documentElement.style;r.setProperty('--ipod',T.ipod);r.setProperty('--bg',T.bg);r.setProperty('--ink',lum(T.ipod)>.45?'#3b3f45':'#e9ebef');$('meta[name=theme-color]').content=T.bg;localStorage.setItem('lp-theme',JSON.stringify(T))}
+const toast=m=>{const e=$('#toast');e.textContent=m;e.classList.add('on');clearTimeout(tm);tm=setTimeout(()=>e.classList.remove('on'),2600)};
+
+/* ---------- Base de datos (IndexedDB) ---------- */
+const open=()=>new Promise((ok,no)=>{const r=indexedDB.open('LyricPodDatabase',2);
+ r.onupgradeneeded=()=>{const d=r.result;['tracks','playlists'].forEach(n=>d.objectStoreNames.contains(n)||d.createObjectStore(n,{keyPath:'id',autoIncrement:true}));d.objectStoreNames.contains('kv')||d.createObjectStore('kv')};
+ r.onsuccess=()=>{db=r.result;ok()};r.onerror=()=>no(r.error)});
+const tx=(n,m,f)=>new Promise((ok,no)=>{const q=f(db.transaction(n,m).objectStore(n));q.onsuccess=()=>ok(q.result);q.onerror=()=>no(q.error)});
+const all=n=>tx(n,'readonly',s=>s.getAll()),put=(n,v,k)=>tx(n,'readwrite',s=>s.put(v,k)),del=(n,k)=>tx(n,'readwrite',s=>s.delete(k));
+async function refresh(){if(db){tracks=(await all('tracks')).sort((a,b)=>a.title.localeCompare(b.title));lists=(await all('playlists')).map(l=>({...l,ids:l.ids||l.trackIds||[]}))}render(1)}
+
+/* ---------- Navegación con historial ---------- */
+const go=(n,a)=>{st.push({n,a});render()},back=()=>{if(st.length>1){st.pop();render()}},home=()=>{st=[{n:'home'}];render()};
+const TT={home:'Lyric Pod',lib:'Música',pl:'Playlists',plp:'Añadir canciones',on:'Música online',now:'Reproduciendo',set:'Ajustes',add:'Agregar música'};
+function render(keep){const p=st.at(-1),pg=$('#pg'),sc=pg.scrollTop;
+ $('#ttl').textContent=p.n==='pld'?(lists.find(l=>l.id===p.a)?.name||'Playlist'):TT[p.n];
+ $('#back').style.visibility=st.length>1?'visible':'hidden';
+ pg.innerHTML=V[p.n](p.a);pg.scrollTop=keep?sc:0;sel=-1;
+ if(p.n==='now')draw();
+ if(p.n==='set')navigator.storage?.persisted?.().then(x=>{const e=$('#sg');if(e)e.textContent=x?'Almacenamiento protegido: tus datos no se borran solos.':'Almacenamiento sin proteger. Instala la app para protegerlo.'})}
+
+/* ---------- Vistas ---------- */
+const trow=(t,i,x='')=>`<div class="row${x?' nc':''}" data-a=pq data-i=${i}><i class=cv>${t.cover?`<img loading=lazy src="${esc(t.cover)}" alt="">`:'♪'}</i><div class=t><b>${esc(t.title)}</b><small>${esc(t.artist)}</small></div>${x}</div>`;
+const libList=(q='')=>{ctx=tracks.filter(t=>(t.title+' '+t.artist).toLowerCase().includes(q.toLowerCase()));return ctx.length?ctx.map((t,i)=>trow(t,i)).join(''):`<p class=pad>${tracks.length?'Sin resultados.':'Todavía no hay canciones. Ve a Agregar música.'}</p>`};
+const resList=()=>{ctx=res;return res.map((t,i)=>trow(t,i,t.preview?'':`<button class=btn data-a=sv data-i=${i}>Guardar</button>`)).join('')};
+const sw=(k,a)=>a.map(c=>`<button class="sw${T[k]===c?' on':''}" style="background:${c}" data-a=th data-k=${k} data-c=${c} aria-label="Color ${c}"></button>`).join('');
+const standalone=matchMedia('(display-mode: standalone)').matches;
+const V={
+ home:()=>[['lib','♪  Música',tracks.length],['pl','▤  Playlists',lists.length],['on','◎  Música online'],cur&&['now','♫  Reproduciendo'],['add','＋  Agregar música'],['set','⚙  Ajustes']].filter(Boolean).map(([n,t,s])=>`<div class=row data-a=go data-n=${n}><div class=t><b>${t}</b></div>${s!==undefined?`<small>${s}</small>`:''}</div>`).join('')+(ip?'<div class=row data-a=inst><div class=t><b>⬇  Instalar app</b></div></div>':''),
+ lib:()=>`<div class=pad><input class=in id=q data-a=q placeholder="Buscar en tu música…" style="margin:0"></div><div id=ll>${libList()}</div>`,
+ pl:()=>`<div class="pad fl" style="flex-wrap:nowrap"><input class=in id=pn placeholder="Nombre de la playlist" style="margin:0"><button class="btn pri" data-a=mk>Crear</button></div>`+(lists.map(l=>`<div class=row data-a=go data-n=pld data-i=${l.id}><div class=t><b>${esc(l.name)}</b><small>${l.ids.length} canciones</small></div></div>`).join('')||'<p class=pad>Crea tu primera playlist.</p>'),
+ pld:i=>{const l=lists.find(x=>x.id===i);if(!l)return'';ctx=l.ids.map(k=>tracks.find(t=>t.id===k)).filter(Boolean);
+  return`<div class="pad fl"><button class="btn pri" data-a=go data-n=plp data-i=${i}>Añadir canciones</button><button class=btn data-a=pls>Reproducir</button><button class=btn data-a=dl data-i=${i}>Eliminar</button></div>`+(ctx.map((t,k)=>trow(t,k,`<button class=btn data-a=rm data-i=${t.id} data-p=${i}>Quitar</button>`)).join('')||'<p class=pad>Esta playlist está vacía.</p>')},
+ plp:i=>{const l=lists.find(x=>x.id===i);return l?tracks.map(t=>`<div class="row nc" data-a=tg data-i=${t.id} data-p=${i}><div class=t><b>${esc(t.title)}</b><small>${esc(t.artist)}</small></div><b>${l.ids.includes(t.id)?'✓':'+'}</b></div>`).join('')||'<p class=pad>Primero agrega música.</p>':''},
+ on:()=>`<div class=pad><div class=fl style="margin-bottom:8px"><button class="btn ${src=='audius'?'pri':''}" data-a=src data-i=audius>Canciones completas</button><button class="btn ${src=='itunes'?'pri':''}" data-a=src data-i=itunes>Previews 30 s</button></div><div class=fl style="flex-wrap:nowrap"><input class=in id=oq placeholder="Canción o artista…" value="${esc(oq)}" style="margin:0"><button class="btn pri" data-a=os>Buscar</button></div></div><div id=res>${resList()}</div>`,
+ now:()=>cur?`<div class=np><div class=nh><i class=cv>${cur.cover?`<img src="${esc(cur.cover)}" alt="">`:'♪'}</i><div class=t><b>${esc(cur.title)}</b><small>${esc(cur.artist)}</small></div></div><div class=ly id=ly></div><div class=pb><span id=t1>0:00</span><input type=range id=pr min=0 max=1000 value=0 data-a=sk aria-label="Progreso"><span id=t2>0:00</span></div></div>`:'<p class=pad>No hay nada en reproducción. Elige una canción de tu música.</p>',
+ add:()=>`<div class=pad><button class="btn pri" style=width:100% data-a=scan>Escanear carpeta de música</button><p><small>Encuentra MP3, WAV, FLAC, M4A, OGG y más, junto con sus .lrc. Solo pide permiso una vez por carpeta.</small></p><div class=fl><button class=btn data-a=rescan>Reanalizar carpetas</button><button class=btn data-a=files>Elegir archivos</button><button class=btn data-a=folder>Elegir carpeta (otros navegadores)</button></div><p id=as></p></div>`,
+ set:()=>`<div class=pad><b>Color del iPod</b><div class=sws>${sw('ipod',['#e6e7ea','#1d1e22','#3a78c2','#e58fb0','#d6453d','#4fae7b','#e3c46b'])}<input type=color value="${T.ipod}" data-a=cp data-k=ipod aria-label="Color personalizado del iPod"></div>
+ <b>Color del fondo</b><div class=sws>${sw('bg',['#14151a','#f1f2f4','#1f3a5f','#3b1f2e','#16352a','#4a2d1a'])}<input type=color value="${T.bg}" data-a=cp data-k=bg aria-label="Color personalizado del fondo"></div>
+ <b>Sincronía de letras</b><div class=sws><button class=btn data-a=of data-i=-.25>−</button><span>${off.toFixed(2)} s</span><button class=btn data-a=of data-i=.25>+</button></div>
+ <b>App</b><div class=sws>${standalone?'<span>Instalada ✓</span>':`<button class="btn pri" data-a=inst>${ip?'Instalar Lyric Pod':'¿Cómo instalar?'}</button>`}</div><small id=sg></small></div>`
+};
+
+/* ---------- Acciones ---------- */
+const A={
+ go:d=>go(d.n,d.i&&+d.i),
+ pq:d=>play(ctx[d.i],ctx),
+ q:()=>{$('#ll').innerHTML=libList($('#q').value)},
+ mk:async()=>{const n=$('#pn').value.trim();if(!n)return toast('Escribe un nombre');await put('playlists',{name:n,ids:[]});await refresh()},
+ dl:async d=>{if(confirm('¿Eliminar esta playlist?')){await del('playlists',+d.i);st.pop();await refresh()}},
+ rm:async d=>{const l=lists.find(x=>x.id===+d.p);l.ids=l.ids.filter(k=>k!==+d.i);await put('playlists',l);await refresh()},
+ tg:async d=>{const l=lists.find(x=>x.id===+d.p),k=+d.i;l.ids=l.ids.includes(k)?l.ids.filter(x=>x!==k):[...l.ids,k];await put('playlists',l);await refresh()},
+ pls:()=>ctx.length?play(ctx[0],ctx):toast('La playlist está vacía'),
+ src:d=>{src=d.i;res=[];render(1)},
+ os:async()=>{oq=$('#oq').value.trim();if(!oq)return;$('#res').innerHTML='<p class=pad>Buscando…</p>';
+  try{res=await(src=='audius'?audius:itunes)(oq)}catch{res=[];return $('#res').innerHTML='<p class=pad>No se pudo conectar. Revisa tu internet e intenta de nuevo.</p>'}
+  $('#res').innerHTML=res.length?resList():'<p class=pad>Sin resultados.</p>'},
+ sv:async d=>{const t=res[d.i];if(tracks.some(x=>x.path===t.uid))return toast('Ya está en tu música');toast('Guardando para escuchar sin internet…');
+  try{const b=await(await fetch(t.url)).blob();await put('tracks',{title:t.title,artist:t.artist,cover:t.cover,dur:t.dur,audio:b,lyrics:'',path:t.uid,type:'saved'});toast('Guardada. Ya suena sin internet.');await refresh()}catch{toast('Esta canción no permite descargarse')}},
+ lk:d=>{au.currentTime=Math.max(0,lines[d.i].t-off)},
+ sk:(d,el)=>{if(au.duration)au.currentTime=el.value/1000*au.duration},
+ of:d=>{off=Math.round((off+ +d.i)*100)/100;localStorage.lpoff=off;render(1)},
+ th:d=>{T[d.k]=d.c;theme();render(1)},
+ cp:(d,el)=>{T[d.k]=el.value;theme()},
+ inst:async()=>{if(ip){ip.prompt();await ip.userChoice;ip=null;render(1)}else toast('Usa el menú del navegador › Instalar app. En iPhone: Compartir › Añadir a inicio.')},
+ scan:async()=>{if(!window.showDirectoryPicker)return A.folder();try{const d=await showDirectoryPicker({id:'lyricpod',mode:'read'});await put('kv',d,'dir:'+d.name);await ingestDir(d)}catch(e){if(e.name!=='AbortError')status('No se pudo abrir la carpeta')}},
+ rescan:async()=>{const ds=db?await all('kv'):[];if(!ds.length)return status('Aún no hay carpetas guardadas');for(const d of ds)if(await d.requestPermission({mode:'read'})==='granted')await ingestDir(d)},
+ files:()=>$('#fm').click(),folder:()=>$('#fi').click()
+};
+const status=m=>{const e=$('#as');if(e)e.textContent=m;toast(m)};
+$('#pg').onclick=e=>{const el=e.target.closest('[data-a]');if(el&&!/INPUT|SELECT/.test(el.tagName))A[el.dataset.a]?.(el.dataset,el)};
+$('#pg').oninput=e=>{const el=e.target.closest('[data-a]');if(el)A[el.dataset.a]?.(el.dataset,el)};
+$('#back').onclick=back;
+
+/* ---------- Biblioteca local: escaneo de carpetas ---------- */
+const nm=n=>{const b=n.replace(/\.[^.]+$/,'').replace(/_/g,' ').trim(),m=b.match(/^(.+?)\s+-\s+(.+)$/);return m&&!/^\d+$/.test(m[1])?{artist:m[1].trim(),title:m[2].trim()}:{artist:'Artista desconocido',title:m?m[2].trim():b}};
+async function walk(d,p,o){for await(const[n,h]of d.entries()){if(n[0]==='.')continue;if(h.kind==='directory')await walk(h,p+n+'/',o);else o.push({n,h,p:p+n})}}
+async function ingestDir(d,q){const f=[];await walk(d,d.name+'/',f);return ingest(f,q)}
+async function ingest(f,q){if(!db)return;status&&!q&&status('Escaneando…');
+ const rd=x=>x.h?x.h.getFile():x.f,key=p=>p.replace(/\.[^./]+$/,'').toLowerCase(),lrc={};
+ f.forEach(x=>/\.lrc$/i.test(x.n)&&(lrc[key(x.p)]=x));
+ const have=new Set(tracks.map(t=>t.path));let n=0;
+ for(const x of f){if(!AUD.test(x.n)||have.has(x.p))continue;const l=lrc[key(x.p)];
+  await put('tracks',{...nm(x.n),path:x.p,handle:x.h,audio:x.f,lyrics:l?await(await rd(l)).text():'',cover:'',type:'local'});n++}
+ await refresh();if(!q)status(n?`${n} canciones nuevas`:'No hay canciones nuevas')}
+$('#fm').onchange=e=>{ingest([...e.target.files].map(f=>({n:f.name,p:f.name,f})));e.target.value=''};
+$('#fi').onchange=e=>{ingest([...e.target.files].map(f=>({n:f.name,p:f.webkitRelativePath||f.name,f})));e.target.value=''};
+
+/* ---------- Música online ---------- */
+const audius=async q=>{const B='https://discoveryprovider.audius.co/v1/tracks/',j=await(await fetch(B+'search?limit=20&app_name=LyricPod&query='+encodeURIComponent(q))).json();
+ return j.data.map(x=>({uid:'a'+x.id,title:x.title,artist:x.user.name,cover:x.artwork?.['480x480']||x.artwork?.['150x150']||'',dur:x.duration,url:B+x.id+'/stream?app_name=LyricPod'}))};
+const itunes=async q=>(await(await fetch('https://itunes.apple.com/search?entity=song&limit=20&term='+encodeURIComponent(q))).json()).results.filter(x=>x.previewUrl)
+ .map(x=>({uid:'i'+x.trackId,title:x.trackName,artist:x.artistName,cover:x.artworkUrl100.replace('100x100','300x300'),dur:x.trackTimeMillis/1000,url:x.previewUrl,preview:1}));
+
+/* ---------- Reproducción ---------- */
+async function srcOf(t){if(url){URL.revokeObjectURL(url);url=null}if(t.url)return t.url;let b=t.audio;
+ if(t.handle){if(await t.handle.queryPermission()!=='granted'&&await t.handle.requestPermission()!=='granted')throw Error('perm');b=await t.handle.getFile()}return url=URL.createObjectURL(b)}
+async function play(t,q){au.pause();cur=t;if(q)queue=q;lines=[];plain='';lst='load';st.at(-1).n==='now'?render():go('now');
+ try{au.src=await srcOf(t);await au.play()}catch(e){toast(e.message==='perm'?'Permite el acceso a la carpeta para reproducir':'No se pudo reproducir esta canción')}
+ meta();loadLyrics(t)}
+const tp=()=>cur?(au.paused?au.play():au.pause()):toast('Elige una canción primero');
+const step=d=>{if(!cur||!queue.length)return;if(d<0&&au.currentTime>3)return void(au.currentTime=0);const i=queue.findIndex(t=>id(t)===id(cur));play(queue[(i+d+queue.length)%queue.length])};
+au.onended=()=>step(1);au.onplay=au.onpause=()=>$('#pi').classList.toggle('on',!au.paused);
+function meta(){if(!navigator.mediaSession||!cur)return;navigator.mediaSession.metadata=new MediaMetadata({title:cur.title,artist:cur.artist,artwork:cur.cover?[{src:cur.cover,sizes:'300x300'}]:[]})}
+if(navigator.mediaSession){const m=navigator.mediaSession;m.setActionHandler('play',()=>au.play());m.setActionHandler('pause',()=>au.pause());m.setActionHandler('previoustrack',()=>step(-1));m.setActionHandler('nexttrack',()=>step(1))}
+
+/* ---------- Letras sincronizadas (LRCLIB) ---------- */
+function parse(s){const o=[];
+ for(const r of s.split(/\r?\n/)){const m=[...r.matchAll(/\[(\d+):(\d+(?:\.\d+)?)\]/g)];if(!m.length)continue;
+  const b=r.replace(/\[\d+:\d+(?:\.\d+)?\]/g,'').trim();let w=null;
+  if(/<\d+:\d+/.test(b)){const p=b.split(/<(\d+):(\d+(?:\.\d+)?)>/);w=[];for(let i=1;i<p.length;i+=3)if(p[i+2].trim())w.push({t:p[i]*60+ +p[i+1],w:p[i+2].trim()})}
+  m.forEach(x=>o.push({t:x[1]*60+ +x[2],txt:w?w.map(z=>z.w).join(' '):b,w}))}
+ o.sort((a,b)=>a.t-b.t);
+ o.forEach((l,i)=>{if(l.w)return;const e=Math.min(o[i+1]?o[i+1].t:l.t+4,l.t+8),ws=l.txt.split(/\s+/).filter(Boolean),n=ws.reduce((a,x)=>a+x.length+1,0);let c=0;
+  l.w=ws.map(x=>{const z={t:l.t+(e-l.t)*.9*c/n,w:x};c+=x.length+1;return z})});
+ return o}
+async function enrich(t){const un='Artista desconocido';if(t.cover&&t.artist!==un)return;
+ try{const r=(await(await fetch('https://itunes.apple.com/search?entity=song&limit=1&term='+encodeURIComponent((t.artist!==un?t.artist+' ':'')+t.title))).json()).results[0];
+  if(r&&r.trackName.toLowerCase().startsWith(t.title.toLowerCase().slice(0,8))){t.cover=t.cover||r.artworkUrl100.replace('100x100','300x300');if(t.artist===un)t.artist=r.artistName;t.dur=t.dur||r.trackTimeMillis/1000;if(t.id)put('tracks',t)}}catch{}}
+async function loadLyrics(t){await enrich(t);if(cur!==t)return;meta();if(st.at(-1).n==='now')render();
+ let x=t.lyrics;const un=t.artist==='Artista desconocido';
+ if(!x){try{const q=new URLSearchParams({track_name:t.title,artist_name:un?'':t.artist});if(t.dur)q.set('duration',Math.round(t.dur));
+   let r=await fetch('https://lrclib.net/api/get?'+q),j=r.ok?await r.json():null;
+   if(!j||!(j.syncedLyrics||j.plainLyrics)){const a=await(await fetch('https://lrclib.net/api/search?q='+encodeURIComponent((un?'':t.artist+' ')+t.title))).json();j=a.find(z=>z.syncedLyrics)||a[0]}
+   x=j&&(j.syncedLyrics||j.plainLyrics);if(x&&t.id&&j.syncedLyrics){t.lyrics=x;put('tracks',t)}}catch{}}
+ if(cur!==t)return;
+ if(x&&/\[\d+:\d+/.test(x)&&!t.preview)lines=parse(x);else plain=x?x.replace(/\[[^\]]*\]|<[^>]*>/g,'').trim():'';
+ lst='';draw()}
+function draw(){const b=$('#ly');if(!b)return;li=-1;
+ b.innerHTML=lines.length?lines.map((x,i)=>`<p data-a=lk data-i=${i}>${x.w.map(w=>`<span>${esc(w.w)}</span>`).join(' ')||'♪'}</p>`).join(''):
+  `<div class=pl>${lst==='load'?'Buscando letras…':plain?(cur?.preview?'<small>Preview de 30 s: letra sin sincronizar.</small><br><br>':'')+esc(plain).replace(/\n/g,'<br>'):'No encontramos letras para esta canción. Prueba importando su archivo .lrc.'}</div>`}
+function tick(){requestAnimationFrame(tick);const pr=$('#pr');
+ if(pr&&au.duration){if(document.activeElement!==pr)pr.value=au.currentTime/au.duration*1000;$('#t1').textContent=fmt(au.currentTime);$('#t2').textContent='-'+fmt(au.duration-au.currentTime)}
+ const b=$('#ly');if(!b||!lines.length)return;const t=au.currentTime+off,ps=b.children;let i=-1;while(i+1<lines.length&&lines[i+1].t<=t)i++;
+ if(i!==li){ps[li]?.classList.remove('on');li=i;if(ps[i]){ps[i].classList.add('on');b.scrollTo({top:ps[i].offsetTop-b.clientHeight/2+ps[i].offsetHeight/2,behavior:'smooth'})}}
+ if(i>=0)[...ps[i].children].forEach((s,k)=>s.classList.toggle('w',lines[i].w[k].t<=t))}
+
+/* ---------- Rueda click, teclado ---------- */
+const mv=d=>{const r=$$('#pg .row');if(!r.length)return;r[sel]?.classList.remove('sel');sel=Math.max(0,Math.min(r.length-1,sel+d));r[sel].classList.add('sel');r[sel].scrollIntoView({block:'nearest'})};
+$('.wheel').addEventListener('wheel',e=>{e.preventDefault();mv(e.deltaY>0?1:-1)},{passive:false});
+$('.l').onclick=()=>step(-1);$('.r').onclick=()=>step(1);$('.p').onclick=tp;
+$('.c').onclick=()=>{const r=$$('#pg .row');r[sel]?r[sel].click():tp()};
+let lp=0;const mb=$('.m');
+mb.onpointerdown=()=>{lp=setTimeout(()=>{lp=-1;home()},550)};
+mb.onpointerup=mb.onpointerleave=()=>clearTimeout(lp>0?lp:0);
+mb.onclick=()=>{lp===-1?lp=0:back()};
+addEventListener('keydown',e=>{
+ if(/INPUT|SELECT/.test(e.target.tagName)){if(e.key==='Enter'){if(e.target.id==='oq')A.os();if(e.target.id==='pn')A.mk()}return}
+ if(e.target.tagName==='BUTTON'&&/Enter| /.test(e.key))return;
+ const k={ArrowDown:()=>mv(1),ArrowUp:()=>mv(-1),Enter:()=>$('.c').click(),Escape:back,Backspace:back,ArrowRight:()=>step(1),ArrowLeft:()=>step(-1),' ':tp}[e.key];
+ if(k){e.preventDefault();k()}});
+
+/* ---------- Instalación y arranque ---------- */
+addEventListener('beforeinstallprompt',e=>{e.preventDefault();ip=e;render(1)});
+addEventListener('appinstalled',()=>{ip=null;navigator.storage?.persist?.();toast('Lyric Pod instalada');render(1)});
+(async()=>{theme();render();tick();
+ try{await open();await refresh();navigator.storage?.persist?.();
+  for(const d of await all('kv'))if(await d.queryPermission({mode:'read'})==='granted')await ingestDir(d,1)}catch(e){console.warn(e)}
+ if('serviceWorker'in navigator&&location.protocol!=='file:')navigator.serviceWorker.register('sw.js').catch(()=>{})})();
+</script>
+</body></html>
