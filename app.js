@@ -250,6 +250,7 @@
         homeRow('on', '&#9678;&nbsp; Música online') +
         (cur ? homeRow('now', '&#9835;&nbsp; Reproduciendo') : '') +
         homeRow('add', '&#65291;&nbsp; Agregar música') +
+        '<div class="row" data-a="share"><div class="t"><b>&#9729;&nbsp; Compartir música</b></div></div>' +
         homeRow('set', '&#9881;&nbsp; Ajustes');
       if (installEvt) { h += '<div class="row" data-a="inst"><div class="t"><b>&#11015;&nbsp; Instalar app</b></div></div>'; }
       return h;
@@ -342,6 +343,7 @@
   /* ================= Acciones ================= */
   var actions = {
     go: function (d) { go(d.n, d.i !== undefined && d.i !== '' ? Number(d.i) : undefined); },
+    share: function () { window.location.href = 'subir.html'; },
     pq: function (d) { playTrack(ctx[Number(d.i)], ctx); },
     q: function () { $('#ll').innerHTML = libList($('#q').value); },
     shufall: function () {
