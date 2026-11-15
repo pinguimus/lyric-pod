@@ -1,7 +1,7 @@
 /* Lyric Pod - service worker
    Estrategia: red primero y, si no hay internet, lo guardado en caché.
    Sube el número de versión cada vez que cambies app.js, style.css o index.html. */
-const CACHE = 'lyricpod-v6';
+const CACHE = 'lyricpod-v7';
 const FILES = [
   './',
   './index.html',
