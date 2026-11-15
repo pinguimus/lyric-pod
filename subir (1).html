@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Comparte tu música · Lyric Pod</title>
+<meta name="theme-color" content="#14151a">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+:root { --bg:#14151a; --bg2:#2a2c34; --ac:#ffd84a; --card:rgba(255,255,255,.07); --line:rgba(255,255,255,.14); --tx:#f2f3f5; --mut:rgba(255,255,255,.62); }
+* { box-sizing: border-box; }
+body { margin:0; min-height:100vh; color:var(--tx); font:15px/1.45 -apple-system,"SF Pro Text","Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  background:radial-gradient(circle at 50% 0%, var(--bg2), var(--bg) 70%) fixed; padding:16px 16px 60px; }
+.wrap { max-width:720px; margin:0 auto; }
+.top { display:flex; align-items:center; gap:12px; margin:6px 0 18px; flex-wrap:wrap; }
+.top a { color:var(--mut); text-decoration:none; font-weight:600; }
+.top a:hover { color:var(--tx); }
+h1 { margin:0; font-size:24px; letter-spacing:-.02em; }
+h2 { margin:0 0 10px; font-size:17px; }
+.card { background:var(--card); border:1px solid var(--line); border-radius:16px; padding:16px; margin-bottom:16px; backdrop-filter:blur(8px); }
+label { display:block; margin:12px 0 4px; font-weight:600; font-size:13px; color:var(--mut); }
+input[type=text], input[type=search], textarea { width:100%; padding:10px 12px; border-radius:10px; border:1px solid var(--line); background:rgba(0,0,0,.3); color:var(--tx); font:inherit; }
+textarea { min-height:170px; resize:vertical; font-family:ui-monospace,Menlo,Consolas,monospace; font-size:13px; }
+input[type=file] { color:var(--mut); max-width:100%; }
+.row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+.grow { flex:1; min-width:140px; }
+.btn { padding:9px 14px; border-radius:10px; border:1px solid var(--line); background:rgba(255,255,255,.1); color:var(--tx); font:inherit; font-weight:600; cursor:pointer; text-decoration:none; display:inline-block; }
+.btn:hover { background:rgba(255,255,255,.18); }
+.btn.pri { background:var(--ac); color:#14161a; border-color:transparent; }
+.btn.pri:hover { filter:brightness(1.08); }
+.btn.danger { color:#ff8a80; }
+.btn[disabled] { opacity:.5; cursor:not-allowed; }
+.sub { color:var(--mut); font-size:13px; }
+.status { min-height:1.4em; margin:10px 0 0; font-weight:600; }
+.status.err { color:#ff8a80; } .status.ok { color:#8affb0; }
+audio { width:100%; margin-top:10px; }
+.cover-prev { width:96px; height:96px; border-radius:10px; object-fit:cover; margin-top:8px; display:block; }
+.check { display:flex; gap:10px; align-items:flex-start; margin:14px 0 8px; color:var(--tx); font-weight:500; font-size:14px; }
+.check input { margin-top:3px; width:18px; height:18px; accent-color:var(--ac); flex:none; }
+#syncBox { border:1px solid var(--ac); border-radius:12px; padding:14px; margin-top:12px; background:rgba(0,0,0,.25); }
+#syncBox .cur { font-size:22px; font-weight:800; line-height:1.2; margin:8px 0; color:var(--ac); }
+#syncBox .nxt { color:var(--mut); }
+#bInstall { margin-left:auto; }
+#instHint { margin:-8px 0 14px; }
+.song { display:flex; gap:12px; padding:12px 0; border-top:1px solid var(--line); }
+.song:first-child { border-top:0; }
+.song .cv { width:64px; height:64px; border-radius:10px; flex:none; object-fit:cover; background:linear-gradient(135deg,#3a5f8e,#14151a); display:grid; place-items:center; font-size:24px; }
+.song .body { flex:1; min-width:0; }
+.song .t { font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.song .a { color:var(--mut); font-size:13px; }
+.song .acts { display:flex; gap:6px; flex-wrap:wrap; margin-top:8px; }
+.song .acts .btn { padding:5px 10px; font-size:12px; }
+.tag { display:inline-block; font-size:11px; padding:1px 7px; border-radius:99px; background:var(--ac); color:#14161a; font-weight:700; margin-left:6px; vertical-align:middle; }
+pre.lyr { white-space:pre-wrap; background:rgba(0,0,0,.3); border-radius:10px; padding:10px; margin:8px 0 0; font-size:13px; line-height:1.5; font-family:inherit; max-height:260px; overflow:auto; }
+[hidden] { display:none !important; }
+button:focus-visible, input:focus-visible, textarea:focus-visible, a:focus-visible { outline:2px solid var(--ac); outline-offset:2px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <a href="./">← Lyric Pod</a>
+    <h1>Comparte tu música</h1>
+    <button type="button" class="btn pri" id="bInstall">Instalar app</button>
+  </div>
+  <p class="sub" id="instHint" role="status" aria-live="polite" hidden></p>
+
+  <section class="card" id="setupCard" hidden>
+    <h2>Falta conectar Supabase</h2>
+    <p class="sub">Abre <b>config.js</b> y pega la URL y la clave pública (anon) de tu proyecto. Después recarga esta página.</p>
+  </section>
+
+  <section class="card" id="upCard">
+    <h2>1. Tu canción</h2>
+    <label for="fAudio">Audio (MP3, M4A, WAV, OGG, FLAC, AAC, OPUS · máx. 20 MB)</label>
+    <input type="file" id="fAudio" accept=".mp3,.m4a,.aac,.wav,.ogg,.oga,.opus,.flac,.weba">
+    <audio id="prev" controls hidden></audio>
+
+    <label for="fCover">Portada (opcional)</label>
+    <input type="file" id="fCover" accept="image/*">
+    <img id="coverPrev" class="cover-prev" alt="Vista previa de la portada" hidden>
+
+    <div class="row">
+      <div class="grow"><label for="fTitle">Título</label><input type="text" id="fTitle" maxlength="120"></div>
+      <div class="grow"><label for="fArtist">Artista</label><input type="text" id="fArtist" maxlength="120"></div>
+    </div>
+
+    <h2 style="margin-top:22px">2. Letra</h2>
+    <p class="sub" style="margin:0 0 8px">Pega la letra (con o sin tiempos), sube un archivo .lrc o búscala automáticamente. Luego sincronízala tú o usa Auto.</p>
+    <textarea id="lyr" spellcheck="false" aria-label="Letra" placeholder="Escribe o pega la letra aquí. Una línea por verso.&#10;También acepta formato LRC: [01:23.45] texto"></textarea>
+    <div class="row" style="margin-top:8px">
+      <button type="button" class="btn" id="bLrc">Subir .lrc</button>
+      <button type="button" class="btn" id="bFind">Buscar automáticamente</button>
+      <button type="button" class="btn" id="bSync">Sincronizar a mano</button>
+      <button type="button" class="btn" id="bAuto">Auto</button>
+    </div>
+    <input type="file" id="fLrc" accept=".lrc,.txt,text/plain" hidden>
+
+    <div id="syncBox" hidden>
+      <div class="sub">Reproduce la canción y pulsa <b>Marcar</b> (o la barra espaciadora) justo cuando empiece cada línea.</div>
+      <div class="cur" id="syncCur"></div>
+      <div class="nxt" id="syncNext"></div>
+      <div class="row" style="margin-top:10px">
+        <button type="button" class="btn pri grow" id="bMark">Marcar línea</button>
+        <button type="button" class="btn" id="bUndo">Deshacer</button>
+        <button type="button" class="btn" id="bExit">Salir</button>
+      </div>
+    </div>
+
+    <h2 style="margin-top:22px">3. Publicar</h2>
+    <label class="check"><input type="checkbox" id="fRights">
+      <span>Tengo los derechos de esta canción y de su letra, o el permiso de sus autores para compartirlas públicamente. Entiendo que cualquiera podrá escucharla y descargarla.</span></label>
+    <button type="button" class="btn pri" id="bPub">Publicar canción</button>
+    <p class="status" id="st" role="status" aria-live="polite"></p>
+  </section>
+
+  <section class="card">
+    <h2>Canciones de la comunidad</h2>
+    <input type="search" id="fSearch" placeholder="Buscar por título o artista…" aria-label="Buscar canciones">
+    <div id="list" style="margin-top:8px"></div>
+  </section>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script src="subir.js"></script>
+</body>
+</html>
